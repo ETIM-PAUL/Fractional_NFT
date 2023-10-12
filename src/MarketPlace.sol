@@ -72,7 +72,7 @@ contract MarketPlace {
         uint _nftFractionPrice,
         string memory _tokenName,
         string memory _tokenTicker
-    ) public {
+    ) public returns (bool success) {
         uint256 index = NftIndex[_nftContractAddress][_nftId];
         require(
             AccessDeposits[msg.sender].Deposit[index].owner == msg.sender,
@@ -96,6 +96,7 @@ contract MarketPlace {
         AccessDeposits[msg.sender]
             .Deposit[index]
             .fractionContractAddress = address(fractionToken);
+        success = true;
     }
 
     function purchaseOneFraction(

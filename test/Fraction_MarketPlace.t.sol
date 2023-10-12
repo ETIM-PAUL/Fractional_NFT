@@ -26,7 +26,7 @@ contract TestFractionMarketPlace is Test {
             address(nft),
             1,
             account1,
-            "FNFT_TOkens",
+            "FNFT_Tokens",
             "FNFT"
         );
 
@@ -39,7 +39,7 @@ contract TestFractionMarketPlace is Test {
             supply: 0,
             totalGain: 0,
             nftFractionPrice: 0.01 ether,
-            hasFractionalized: true
+            hasFractionalized: false
         });
         nft.mintTo(account1);
     }
@@ -53,5 +53,21 @@ contract TestFractionMarketPlace is Test {
         );
 
         assertTrue(deposited);
+    }
+
+    function testCreateFractiontNft() external {
+        vm.startPrank(account1);
+        nft.approve(address(marketPlace), 1);
+        marketPlace.depositNft(newDeposit.nftContractAddress, 1);
+        newDeposit.hasFractionalized = true;
+        bool fractionCreated = marketPlace.depositNft(
+            newDeposit.nftContractAddress,
+            1,
+            10,
+            newDeposit.nftFractionPrice,
+            "FNFT_Tokens",
+            "FNFT"
+        );
+        assertTrue(fractionCreated);
     }
 }
