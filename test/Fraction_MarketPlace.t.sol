@@ -5,12 +5,20 @@ import {Test} from "forge-std/Test.sol";
 import {MarketPlace} from "../src/MarketPlace.sol";
 import {NFT} from "../src/NFT.sol";
 import {FractionToken} from "../src/FractionTokens.sol";
+import "forge-std/console.sol";
+import {Test} from "forge-std/Test.sol";
 
-contract TestFractionMarketPlace {
+contract TestFractionMarketPlace is Test {
+    NFT private nft;
+    MarketPlace private marketPlace;
+    FractionToken private fractionT;
+
+    MarketPlace.DepositInfo newDeposit;
+
+    address account1 = address(0x11);
+    address account2 = address(0x22);
+
     function setUp() public {
-        address account1 = address("0x11");
-        address account2 = address("0x22");
-
         marketPlace = new MarketPlace();
         // Deploy NFT contract
         nft = new NFT("baseUri");
@@ -33,6 +41,17 @@ contract TestFractionMarketPlace {
             nftFractionPrice: 0.01 ether,
             hasFractionalized: true
         });
-        nft.mintTo(accountA);
+        nft.mintTo(account1);
+    }
+
+    function testDepositNft() external {
+        vm.startPrank(account1);
+        nft.approve(address(marketPlace), 1);
+        bool deposited = marketPlace.depositNft(
+            newDeposit.nftContractAddress,
+            1
+        );
+
+        assertTrue(deposited);
     }
 }

@@ -37,7 +37,10 @@ contract MarketPlace {
 
     constructor() {}
 
-    function depositNft(address _nftContractAddress, uint256 _nftId) public {
+    function depositNft(
+        address _nftContractAddress,
+        uint256 _nftId
+    ) public returns (bool success) {
         //address must approve this contract to transfer the nft they own before calling this function
         //fractionalize contract needs to hold the nft so it can be fractionalize
         ERC721 NFT = ERC721(_nftContractAddress);
@@ -59,6 +62,7 @@ contract MarketPlace {
 
         //save the new infomation into the smart contract
         AccessDeposits[msg.sender].Deposit.push(newDeposit);
+        success = true;
     }
 
     function createFraction(
