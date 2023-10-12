@@ -44,7 +44,7 @@ contract MarketPlace {
         //address must approve this contract to transfer the nft they own before calling this function
         //fractionalize contract needs to hold the nft so it can be fractionalize
         ERC721 NFT = ERC721(_nftContractAddress);
-        NFT.safeTransferFrom(msg.sender, address(this), _nftId);
+        NFT.transferFrom(msg.sender, address(this), _nftId);
 
         DepositInfo memory newDeposit;
 
