@@ -170,6 +170,22 @@ contract MarketPlace {
         NFT.transferFrom(address(this), msg.sender, NFTId);
     }
 
+    function transferNFTFractions(
+        address _fractionContract,
+        address _to
+    ) public returns (bool success) {
+        //address must approve this contract to transfer fraction tokens
+
+        FractionToken fraction = FractionToken(_fractionContract);
+        uint256 index = NftIndex[fraction.NFTAddress()][fraction.NFTId()];
+
+        require(amount > 0, "Zero Amount Not Allowed");
+        require(fraction.balanceOf(msg.sender) <= amount, "Amount Higher");
+
+        fraction.transferFrom(msg.sender, _to, amount);
+        success = true;
+    }
+
     function withdrawNftNotFractionalized(
         address _NftContract,
         uint _NftId
