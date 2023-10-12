@@ -101,7 +101,11 @@ contract MarketPlace {
     ) public payable {
         FractionToken fraction = FractionToken(_fractionContract);
         uint256 index = NftIndex[_nftContractAddress][_nftId];
-        require(msg.value == fraction.nftFractionPrice, "Incorrect Eth Price");
+
+        uint nftFractionPrice = AccessDeposits[msg.sender]
+            .Deposit[index]
+            .nftFractionPrice;
+        require(msg.value == nftFractionPrice, "Incorrect Eth Price");
         require(
             AccessDeposits[msg.sender].Deposit[index].supply <
                 fraction.totalSupplyT(),
@@ -113,19 +117,20 @@ contract MarketPlace {
     }
 
     //can withdraw the NFT if you own the total supply
-    function withdrawGainsAndTransferNFT(
-        address _NftContract,
-        address _NftId
-    ) public {
+    function withdrawGainsAndTransferNFT(address _fractionContract) public {
         //address must approve this contract to transfer fraction tokens
 
         FractionToken fraction = FractionToken(_fractionContract);
-        uint256 index = NftIndex[_nftContractAddress][_nftId];
+        uint256 index = NftIndex[fraction.NFTAddress()][fraction.NFTId()];
 
-        uint totalGainFromFractions = AccessDeposits[msg.sender]
+        address NFTAddress = fraction.NFTAddress();
+        address NFTOwner = fraction.NFTOwner();
+        uint256 NFTId = fraction.NFTId();
+
+        uint256 totalGainFromFractions = AccessDeposits[NFTOwner]
             .Deposit[index]
             .totalGain;
-        address nftOwner = AccessDeposits[msg.sender].Deposit[index].owner;
+        address nftOwner = AccessDeposits[NFTOwner].Deposit[index].owner;
 
         require(
             fraction.ContractDeployer() == address(this),
@@ -136,9 +141,6 @@ contract MarketPlace {
             "Total Supply Not reached"
         );
 
-        address NFTAddress = fraction.NFTAddress();
-        uint256 NFTId = fraction.NFTId();
-
         //remove tokens from existence as they are no longer valid (NFT leaving this contract)
         fraction.transferFrom(
             msg.sender,
@@ -147,11 +149,11 @@ contract MarketPlace {
         );
         fraction.burn(fraction.totalSupply());
 
-        delete AccessDeposits[msg.sender].Deposit[index];
+        delete AccessDeposits[NFTOwner].Deposit[index];
 
         //calculate royalty fee
-        uint royaltyFee = (totalGainFromFractions *
-            fraction.ROYALTY_PERCENTAGE) / 100;
+        uint256 royaltyFee = (totalGainFromFractions *
+            fraction.ROYALTY_PERCENTAGE()) / 100;
         uint afterRoyaltyFee = totalGainFromFractions - royaltyFee;
 
         (bool sent, bytes memory data) = payable(nftOwner).call{
@@ -160,12 +162,12 @@ contract MarketPlace {
         require(sent, "Failed to send Ether");
 
         ERC721 NFT = ERC721(NFTAddress);
-        NFT.safeTransferFrom(address(this), msg.sender, NFTId);
+        NFT.transferFrom(address(this), msg.sender, NFTId);
     }
 
     function withdrawNftNotFractionalized(
         address _NftContract,
-        address _NftId
+        uint _NftId
     ) public {
         uint256 index = NftIndex[_NftContract][_NftId];
         require(
@@ -185,7 +187,7 @@ contract MarketPlace {
     }
 
     //receive function
-    receive() external payable;
+    fallback() external payable {}
 
     // function onERC721Received(
     //     address,

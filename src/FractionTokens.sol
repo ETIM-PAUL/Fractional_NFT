@@ -40,8 +40,6 @@ contract FractionToken is ERC20, ERC20Burnable {
         uint256 amount
     ) public override returns (bool) {
         //calculate royalty fee
-        uint royaltyFee = (amount * ROYALTY_PERCENTAGE) / 100;
-        uint afterRoyaltyFee = amount - royaltyFee;
         address owner = _msgSender();
 
         _transfer(owner, to, amount);

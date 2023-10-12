@@ -10,7 +10,7 @@ error MaxSupply();
 error NonExistentTokenURI();
 error WithdrawTransfer();
 
-contract NFT is ERC721, Ownable {
+contract NFT is ERC721 {
     using Strings for uint256;
     string public baseURI;
     uint256 public currentTokenId;
@@ -42,13 +42,5 @@ contract NFT is ERC721, Ownable {
             bytes(baseURI).length > 0
                 ? string(abi.encodePacked(baseURI, tokenId.toString()))
                 : "";
-    }
-
-    function withdrawPayments(address payable payee) external onlyOwner {
-        uint256 balance = address(this).balance;
-        (bool transferTx, ) = payee.call{value: balance}("");
-        if (!transferTx) {
-            revert WithdrawTransfer();
-        }
     }
 }
