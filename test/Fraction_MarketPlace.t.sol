@@ -60,7 +60,7 @@ contract TestFractionMarketPlace is Test {
         nft.approve(address(marketPlace), 1);
         marketPlace.depositNft(newDeposit.nftContractAddress, 1);
         newDeposit.hasFractionalized = true;
-        bool fractionCreated = marketPlace.depositNft(
+        bool fractionCreated = marketPlace.createFraction(
             newDeposit.nftContractAddress,
             1,
             10,
